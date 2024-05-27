@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-m-ui-api
+  namespace: project-m
+  labels:
+    app: project-m-ui-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-m-ui-api
+  template:
+    metadata:
+      labels:
+        app: project-m-ui-api
+    spec:
+      containers:
+        - name: project-m-ui-api
+          image: docker.io/project-m/ui-api:1.0.6
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+            - name: NODE_ENV
+              value: "production"
+            - name: KAFKA_API_BASE_URL
+              value: "http://project-m-kafka-api.project-m.svc.cluster.local:8004"
+            - name: STORE_API_BASE_URL
+              value: "http://project-m-store-api.project-m.svc.cluster.local:8003"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-m-ui-api
+  namespace: project-m
+spec:
+  selector:
+    app: project-m-ui-api
+  type: ClusterIP
+  ports:
+    - name: port-3003
+      protocol: TCP
+      port: 3003
+      targetPort: 3002
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ir-project-m-ui-api
+  namespace: project-m
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: "Host(`app.projectmetrics-devtest.privatelink.northeurope.azmk8s.io`) && PathPrefix(`/{path:(?i:app/ui-api/v1)}`)"
+    kind: Rule
+    services:
+    - name: project-m-ui-api
+      port: 3003
+      namespace: project-m
+    middlewares:
+    - name: "internal-project-m-ui-api-stripprefix"
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "internal-project-m-ui-api-stripprefix"
+  namespace: project-m
+spec:
+  stripPrefixRegex:
+    regex:
+      - /(?i:app/ui-api/v1)

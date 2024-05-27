@@ -1,0 +1,4 @@
+confluent-kafka
+environs
+azure.identity
+azure.keyvault.secrets

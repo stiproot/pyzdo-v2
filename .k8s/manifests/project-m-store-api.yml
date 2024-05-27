@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-m-store-api
+  namespace: project-m
+  labels:
+    app: project-m-store-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-m-store-api
+  template:
+    metadata:
+      labels:
+        app: project-m-store-api
+    spec:
+      containers:
+        - name: project-m-store-api
+          image: docker.io/project-m/store-api:1.0.3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+          env:
+            - name: ENVIRONMENT
+              value: aks
+            - name: KEY_VAULT_URL
+              value: ""
+            - name: COSMOS_DATABASE_NAME
+              value: ""
+            - name: COSMOS_URL
+              value: ""
+            - name: STORE_QUERY_URL
+              value: ""
+            - name: AZURE_CLIENT_ID
+              value: ""
+            - name: AZURE_CLIENT_SECRET
+              value: ""
+            - name: AZURE_TENANT_ID
+              value: ""
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-m-store-api
+  namespace: project-m
+spec:
+  selector:
+    app: project-m-store-api
+  type: ClusterIP
+  ports:
+    - name: port-8003
+      protocol: TCP
+      port: 8003
+      targetPort: 8001
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ir-project-m-store-api
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: "Host(`app.projectmetrics-devtest.privatelink.northeurope.azmk8s.io`) && PathPrefix(`/{path:(?i:app/store-api/v1)}`)"
+    kind: Rule
+    services:
+    - name: project-m-store-api
+      port: 8003
+      namespace: project-m
+    middlewares:
+    - name: "internal-project-m-store-api-stripprefix"
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "internal-project-m-store-api-stripprefix"
+spec:
+  stripPrefixRegex:
+    regex:
+      - /(?i:app/store-api/v1)

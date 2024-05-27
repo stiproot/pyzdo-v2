@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+confluent-kafka
+pyxi_process_manager
+pyxi_azdo_http_client
+httpx
+requests
+environs
+azure.cosmos
+azure.identity
+azure.keyvault.secrets

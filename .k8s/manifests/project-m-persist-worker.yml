@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-m-persist-worker
+  namespace: project-m
+  labels:
+    app: project-m-persist-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-m-persist-worker
+  template:
+    metadata:
+      labels:
+        app: project-m-persist-worker
+    spec:
+      containers:
+        - name: project-m-persist-worker
+          image: docker.io/project-m/persist-worker:1.0.8
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: ""
+            - name: KAFKA_SECURITY_PROTOCOL
+              value: "SASL_SSL"
+            - name: KAFKA_SASL_MECHANISMS
+              value: "PLAIN"
+            - name: KAFKA_SASL_USERNAME
+              value: ""
+            - name: KAFKA_SASL_PASSWORD
+              value: ""
+            - name: KAFKA_GROUP_ID
+              value: "projectm-persist-worker-001"
+            - name: KAFKA_AUTO_OFFSET_RESET
+              value: "latest"
+            - name: DEBUGGING
+              value: "False"
+            - name: WORKER_TOPIC
+              value: "PROJECTM_CMD_PERSIST"
+            - name: STORE_COMMAND_URL
+              value: "http://project-m-store-api.project-m.svc.cluster.local:8003/store/cmd"
+            - name: STORE_BULK_COMMAND_URL
+              value: "http://project-m-store-api.project-m.svc.cluster.local:8003/store/cmds"
+            - name: STORE_QUERY_URL
+              value: "http://project-m-store-api.project-m.svc.cluster.local:8003/store/qry"
+            - name: ENVIRONMENT
+              value: "aks"
+            - name: KEY_VAULT_URL
+              value: ""
+            - name: COSMOS_DATABASE_NAME
+              value: ""
+            - name: COSMOS_URL
+              value: ""
+            - name: AZURE_CLIENT_ID
+              value: ""
+            - name: AZURE_CLIENT_SECRET
+              value: ""
+            - name: AZURE_TENANT_ID
+              value: ""

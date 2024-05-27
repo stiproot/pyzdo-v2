@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appsettings-internal-project-m-azdo-proxy-api
+data:
+  appsettings.json: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning",
+          "System.Net.Http.HttpClient": "Warning"
+        }
+      },
+      "AllowedHosts": "*",
+      "secrets": {
+        "pat": "docker.io"
+      }
+    }
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-m-azdo-proxy-api
+  namespace: project-m
+  labels:
+    app: project-m-azdo-proxy-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-m-azdo-proxy-api
+  template:
+    metadata:
+      labels:
+        app: project-m-azdo-proxy-api
+    spec:
+      containers:
+        - name: project-m-azdo-proxy-api
+          image: docker.io/project-m/azdo-proxy-api:1.0.4
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: PAT
+              value: "xyz"
+          volumeMounts:
+            - name: appsettings
+              mountPath: /app/appsettings.json
+              subPath: appsettings.json
+              readOnly: true
+      volumes:
+        - name: appsettings
+          configMap:
+            name: appsettings-internal-project-m-azdo-proxy-api
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-m-azdo-proxy-api
+  namespace: project-m
+spec:
+  selector:
+    app: project-m-azdo-proxy-api
+  type: ClusterIP
+  ports:
+    - name: port-5080
+      protocol: TCP
+      port: 5080
+      targetPort: 80
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ir-project-m-azdo-proxy-api
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: "Host(`app.projectmetrics-devtest.privatelink.northeurope.azmk8s.io`) && PathPrefix(`/{path:(?i:app/azdo-proxy-api/v1)}`)"
+    kind: Rule
+    services:
+    - name: project-m-azdo-proxy-api
+      port: 5080
+      namespace: project-m
+    middlewares:
+    - name: "internal-project-m-azdo-proxy-api-stripprefix"
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "internal-project-m-azdo-proxy-api-stripprefix"
+spec:
+  stripPrefixRegex:
+    regex:
+      - /(?i:app/azdo-proxy-api/v1)

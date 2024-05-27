@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-m-kafka-api
+  namespace: project-m
+  labels:
+    app: project-m-kafka-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-m-kafka-api
+  template:
+    metadata:
+      labels:
+        app: project-m-kafka-api
+    spec:
+      containers:
+        - name: project-m-kafka-api
+          image: docker.io/project-m/kafka-api:1.0.8
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8002
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: ""
+            - name: KAFKA_SECURITY_PROTOCOL
+              value: "SASL_SSL"
+            - name: KAFKA_SASL_MECHANISMS
+              value: "PLAIN"
+            - name: KAFKA_SASL_USERNAME
+              value: ""
+            - name: KAFKA_SASL_PASSWORD
+              value: ""
+            - name: CLIENT_ID
+              value: "projectm-kafka-api"
+            - name: STORE_QUERY_URL
+              value: ""
+            - name: COSMOS_DATABASE_NAME
+              value: ""
+            - name: ENVIRONMENT
+              value: "aks"
+            - name: DEBUGGING
+              value: "False"
+            - name: AZURE_CLIENT_ID
+              value: ""
+            - name: AZURE_CLIENT_SECRET
+              value: ""
+            - name: AZURE_TENANT_ID
+              value: ""
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-m-kafka-api
+  namespace: project-m
+spec:
+  selector:
+    app: project-m-kafka-api
+  type: ClusterIP
+  ports:
+    - name: port-8004
+      protocol: TCP
+      port: 8004
+      targetPort: 8002
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ir-project-m-kafka-api
+  namespace: project-m
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: "Host(`app.projectmetrics-devtest.privatelink.northeurope.azmk8s.io`) && PathPrefix(`/{path:(?i:app/kafka-api/v1)}`)"
+    kind: Rule
+    services:
+    - name: project-m-kafka-api
+      port: 8004
+      namespace: project-m
+    middlewares:
+    - name: internal-project-m-kafka-api-stripprefix
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: internal-project-m-kafka-api-stripprefix
+  namespace: project-m
+spec:
+  stripPrefixRegex:
+    regex:
+      - /(?i:app/kafka-api/v1)
