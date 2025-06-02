@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyzdo-ui
+  namespace: pyzdo
+  labels:
+    app: pyzdo-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyzdo-ui
+  template:
+    metadata:
+      labels:
+        app: pyzdo-ui
+    spec:
+      containers:
+        - name: pyzdo-ui
+          image: docker.io/pyzdo/ui:1.0.10
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: VUE_APP_AZDO_API_KEY
+              value: ""
+            - name: VUE_APP_DEFAULT_QUERY_FOLDER
+              value: ""
+            - name: VUE_APP_UI_API_BASE_URL
+              value: "http://pyzdo-api-svc:80"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pyzdo-ui-svc
+  namespace: pyzdo
+spec:
+  selector:
+    app: pyzdo-ui
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8081
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ir-pyzdo-ui
+  namespace: pyzdo
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: "Host(`ui.pyzdo.io`)"
+    kind: Rule
+    services:
+    - name: pyzdo-ui-svc
+      port: 80
+      namespace: pyzdo

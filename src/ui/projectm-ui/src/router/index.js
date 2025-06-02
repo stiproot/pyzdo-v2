@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import ProjectManagerComponent from "../components/ProjectManagerComponent.vue";
+import pyzdoanagerComponent from "../components/pyzdoanagerComponent.vue";
 import ProjectRootComponent from "../components/ProjectRootComponent.vue";
 
 const routes = [
@@ -10,7 +10,7 @@ const routes = [
   {
     path: "/projects",
     name: "projects",
-    component: ProjectManagerComponent,
+    component: pyzdoanagerComponent,
   },
   {
     path: "/projects/new",

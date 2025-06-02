@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyzdo-azdo-proxy-worker
+  namespace: pyzdo
+  labels:
+    app: pyzdo-azdo-proxy-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyzdo-azdo-proxy-worker
+  template:
+    metadata:
+      labels:
+        app: pyzdo-azdo-proxy-worker
+    spec:
+      containers:
+        - name: pyzdo-azdo-proxy-worker
+          image: docker.io/pyzdo/azdo-proxy-worker:1.0.6
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: ""
+            - name: KAFKA_SECURITY_PROTOCOL
+              value: "SASL_SSL"
+            - name: KAFKA_SASL_MECHANISMS
+              value: "PLAIN"
+            - name: KAFKA_SASL_USERNAME
+              value: ""
+            - name: KAFKA_SASL_PASSWORD
+              value: ""
+            - name: KAFKA_GROUP_ID
+              value: "pyzdo-azdo-proxy-worker-001"
+            - name: KAFKA_AUTO_OFFSET_RESET
+              value: "latest"
+            - name: DEBUGGING
+              value: "False"
+            - name: WORKER_TOPIC
+              value: "pyzdo_CMD_AZDO_PROXY"
+            - name: PERSIST_TOPIC
+              value: "pyzdo_CMD_PERSIST"
+            - name: PERSIST_URL
+              value: "http://pyzdo-kafka-api.pyzdo.svc.cluster.local:8004/kafka/topic/publish"
+            - name: STORE_QUERY_URL
+              value: "http://pyzdo-store-api.pyzdo.svc.cluster.local:8003/store/qry"
+            - name: API_KEY
+              value: ""
+            - name: ENVIRONMENT
+              value: "aks"
+            - name: KEY_VAULT_URL
+              value: ""
+            - name: COSMOS_DATABASE_NAME
+              value: ""
+            - name: COSMOS_URL
+              value: ""
+            - name: AZURE_CLIENT_ID
+              value: ""
+            - name: AZURE_CLIENT_SECRET
+              value: ""
+            - name: AZURE_TENANT_ID
+              value: ""
+            - name: AZDO_PROXY_BASE_URL
+              value: http://pyzdo-azdo-proxy-api.pyzdo.svc.cluster.local:5080

@@ -1,6 +1,6 @@
 # Default values for Traefik
 image:
-  repository: itartifacts.co.uk/imagedeploy/docker.io/traefik
+  repository: docker.io/traefik
   # defaults to appVersion
   tag: "2.9.8"
   pullPolicy: Always

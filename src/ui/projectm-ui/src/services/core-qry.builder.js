@@ -3,7 +3,7 @@ export const buildCoreQry = (collection, id, projectId) => {
     qry_data: {
       // ql:
       //   `select * from ` +
-      //   `project_m.${scope}.${collection} ` +
+      //   `pyzdo.${scope}.${collection} ` +
       //   `where id = '${id}' and __metadata__.project_id = '${projectId}'`,
       ql:
         `SELECT * FROM c ` +

@@ -2,7 +2,7 @@ version: "2"
 services:
   broker:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/cp-kafka:7.4.1
     hostname: broker
     container_name: broker
@@ -31,7 +31,7 @@ services:
 
   init-kafka:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/cp-kafka:7.4.1
     depends_on:
       - broker
@@ -43,17 +43,17 @@ services:
 
       echo -e 'Creating kafka topics'
 
-      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic PROJECTM_CMD_PERSIST --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic PROJECTM_CMD_GATHER --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic PROJECTM_CMD_STRUCTURE --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic PROJECTM_CMD_AZDO_PROXY --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic pyzdo_CMD_PERSIST --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic pyzdo_CMD_GATHER --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic pyzdo_CMD_STRUCTURE --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic pyzdo_CMD_AZDO_PROXY --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server broker:29092 --list
       "
   schema-registry:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/cp-schema-registry:7.4.1
     hostname: schema-registry
     container_name: schema-registry
@@ -68,7 +68,7 @@ services:
 
   connect:
     networks:
-      - project-m
+      - pyzdo
     image: cnfldemos/cp-server-connect-datagen:0.5.3-7.1.0
     hostname: connect
     container_name: connect
@@ -100,7 +100,7 @@ services:
 
   control-center:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/cp-enterprise-control-center:7.4.1
     hostname: control-center
     container_name: control-center
@@ -125,7 +125,7 @@ services:
 
   ksqldb-server:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/cp-ksqldb-server:7.4.1
     hostname: ksqldb-server
     container_name: ksqldb-server
@@ -150,7 +150,7 @@ services:
 
   ksqldb-cli:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/cp-ksqldb-cli:7.4.1
     container_name: ksqldb-cli
     depends_on:
@@ -162,7 +162,7 @@ services:
 
   ksql-datagen:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/ksqldb-examples:7.4.1
     hostname: ksql-datagen
     container_name: ksql-datagen
@@ -186,7 +186,7 @@ services:
 
   rest-proxy:
     networks:
-      - project-m
+      - pyzdo
     image: confluentinc/cp-kafka-rest:7.4.4
     depends_on:
       - broker
@@ -202,5 +202,5 @@ services:
       KAFKA_REST_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
 
 networks:
-  mandy:
+  pyzdo:
     driver: bridge

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyzdo-persist-worker
+  namespace: pyzdo
+  labels:
+    app: pyzdo-persist-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyzdo-persist-worker
+  template:
+    metadata:
+      labels:
+        app: pyzdo-persist-worker
+    spec:
+      containers:
+        - name: pyzdo-persist-worker
+          image: docker.io/pyzdo/persist-worker:1.0.8
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: ""
+            - name: KAFKA_SECURITY_PROTOCOL
+              value: "SASL_SSL"
+            - name: KAFKA_SASL_MECHANISMS
+              value: "PLAIN"
+            - name: KAFKA_SASL_USERNAME
+              value: ""
+            - name: KAFKA_SASL_PASSWORD
+              value: ""
+            - name: KAFKA_GROUP_ID
+              value: "pyzdo-persist-worker-001"
+            - name: KAFKA_AUTO_OFFSET_RESET
+              value: "latest"
+            - name: DEBUGGING
+              value: "False"
+            - name: WORKER_TOPIC
+              value: "pyzdo_CMD_PERSIST"
+            - name: STORE_COMMAND_URL
+              value: "http://pyzdo-store-api.pyzdo.svc.cluster.local:8003/store/cmd"
+            - name: STORE_BULK_COMMAND_URL
+              value: "http://pyzdo-store-api.pyzdo.svc.cluster.local:8003/store/cmds"
+            - name: STORE_QUERY_URL
+              value: "http://pyzdo-store-api.pyzdo.svc.cluster.local:8003/store/qry"
+            - name: ENVIRONMENT
+              value: "aks"
+            - name: KEY_VAULT_URL
+              value: ""
+            - name: COSMOS_DATABASE_NAME
+              value: ""
+            - name: COSMOS_URL
+              value: ""
+            - name: AZURE_CLIENT_ID
+              value: ""
+            - name: AZURE_CLIENT_SECRET
+              value: ""
+            - name: AZURE_TENANT_ID
+              value: ""

@@ -1,9 +1,9 @@
 version: "2"
 services:
 
-  project-m-db:
+  pyzdo-db:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
       - broker
     build: ./src/db
@@ -15,9 +15,9 @@ services:
       - 11280:11280
       - 18091-18097:18091-18097
 
-  project-m-kafka-api:
+  pyzdo-kafka-api:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
       - broker
     build: ./src/apis/kafka-api
@@ -25,116 +25,116 @@ services:
       - 8006:8002
     environment:
       - KAFKA_BOOTSTRAP_SERVERS:broker:29092
-      - CLIENT_ID=project-m-kafka-api
+      - CLIENT_ID=pyzdo-kafka-api
 
-  project-m-cb-api:
+  pyzdo-cb-api:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
-      - project-m-db
+      - pyzdo-db
     build: ./src/apis/couchbase-api
     ports:
       - 8005:8001
     environment:
-      - COUCHBASE_HOST=project-m-db
+      - COUCHBASE_HOST=pyzdo-db
       - COUCHBASE_USERNAME=root
       - COUCHBASE_PASSWORD=R007__..
 
-  project-m-azdo-proxy-api:
+  pyzdo-azdo-proxy-api:
     networks:
-      - project-m
+      - pyzdo
     build: ./src/apis/azdo-proxy-api
     ports:
       - 5079:5079
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=broker:29092
-      - KAFKA_GROUP_ID=projectm-azdo-proxy-worker-001
-      - WORKER_TOPIC=PROJECTM_CMD_AZDO_PROXY
-      - PERSIST_TOPIC=PROJECTM_CMD_PERSIST
-      - PERSIST_URL=http://project-m-kafka-api:8002/kafka/topic/publish
+      - KAFKA_GROUP_ID=pyzdo-azdo-proxy-worker-001
+      - WORKER_TOPIC=pyzdo_CMD_AZDO_PROXY
+      - PERSIST_TOPIC=pyzdo_CMD_PERSIST
+      - PERSIST_URL=http://pyzdo-kafka-api:8002/kafka/topic/publish
 
-  project-m-persist-worker:
+  pyzdo-persist-worker:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
       - broker
-      - project-m-cb-api
+      - pyzdo-cb-api
     build: ./src/workers/persist
     environment:
-      - KAFKA_GROUP_ID=projectm-persist-worker-001
+      - KAFKA_GROUP_ID=pyzdo-persist-worker-001
       - KAFKA_BOOTSTRAP_SERVERS=broker:29092
-      - WORKER_TOPIC=PROJECTM_CMD_PERSIST
-      - PERSIST_URL=http://project-m-cb-api:8001/cb/cmd
-      - BULK_PERSIST_URL=http://project-m-cb-api:8001/cb/cmds
-      - STORE_QUERY_URL=http://project-m-cb-api:8001/cb/qry
+      - WORKER_TOPIC=pyzdo_CMD_PERSIST
+      - PERSIST_URL=http://pyzdo-cb-api:8001/cb/cmd
+      - BULK_PERSIST_URL=http://pyzdo-cb-api:8001/cb/cmds
+      - STORE_QUERY_URL=http://pyzdo-cb-api:8001/cb/qry
 
-  project-m-azdo-worker:
+  pyzdo-azdo-worker:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
       - broker
-      - project-m-azdo-proxy-api
+      - pyzdo-azdo-proxy-api
     build: ./src/workers/azdo
     environment:
-      - KAFKA_GROUP_ID=projectm-azdo-worker-001
+      - KAFKA_GROUP_ID=pyzdo-azdo-worker-001
       - KAFKA_BOOTSTRAP_SERVERS=broker:29092
-      - WORKER_TOPIC=PROJECTM_CMD_GATHER
-      - PERSIST_URL=http://project-m-kafka-api:8002/kafka/topic/publish
-      - PERSIST_TOPIC=PROJECTM_CMD_PERSIST
+      - WORKER_TOPIC=pyzdo_CMD_GATHER
+      - PERSIST_URL=http://pyzdo-kafka-api:8002/kafka/topic/publish
+      - PERSIST_TOPIC=pyzdo_CMD_PERSIST
       - API_KEY=
-      - STORE_QUERY_URL=http://project-m-cb-api:8001/cb/qry
+      - STORE_QUERY_URL=http://pyzdo-cb-api:8001/cb/qry
 
-  project-m-insights-worker:
+  pyzdo-insights-worker:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
       - broker
     build: ./src/workers/insights
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=broker:29092
-      - KAFKA_GROUP_ID=projectm-insights-worker-001
-      - WORKER_TOPIC=PROJECTM_CMD_STRUCTURE
-      - PERSIST_TOPIC=PROJECTM_CMD_PERSIST
-      - PERSIST_URL=http://project-m-kafka-api:8002/kafka/topic/publish
-      - STORE_QUERY_URL=http://project-m-cb-api:8001/cb/qry
+      - KAFKA_GROUP_ID=pyzdo-insights-worker-001
+      - WORKER_TOPIC=pyzdo_CMD_STRUCTURE
+      - PERSIST_TOPIC=pyzdo_CMD_PERSIST
+      - PERSIST_URL=http://pyzdo-kafka-api:8002/kafka/topic/publish
+      - STORE_QUERY_URL=http://pyzdo-cb-api:8001/cb/qry
 
-  project-m-azdo-proxy-worker:
+  pyzdo-azdo-proxy-worker:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
       - broker
     build: ./src/workers/azdo_proxy
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=broker:29092
-      - WORKER_TOPIC=PROJECTM_CMD_AZDO_PROXY
-      - KAFKA_GROUP_ID=projectm-azdo-proxy-worker-001
-      - PERSIST_TOPIC=PROJECTM_CMD_PERSIST
-      - PERSIST_URL=http://project-m-kafka-api:8002/kafka/topic/publish
-      - AZDO_PROXY_BASE_URL=http://project-m-azdo-proxy-api:80
+      - WORKER_TOPIC=pyzdo_CMD_AZDO_PROXY
+      - KAFKA_GROUP_ID=pyzdo-azdo-proxy-worker-001
+      - PERSIST_TOPIC=pyzdo_CMD_PERSIST
+      - PERSIST_URL=http://pyzdo-kafka-api:8002/kafka/topic/publish
+      - AZDO_PROXY_BASE_URL=http://pyzdo-azdo-proxy-api:80
       - API_KEY=
-      - STORE_QUERY_URL=http://project-m-cb-api:8001/cb/qry
+      - STORE_QUERY_URL=http://pyzdo-cb-api:8001/cb/qry
 
-  project-m-ui-api:
+  pyzdo-ui-api:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
       - broker
-      - project-m-cb-api
+      - pyzdo-cb-api
     build: ./src/apis/ui-api
     ports:
       - 3004:3002
     environment:
       - PORT=3001
       - NODE_ENV=production
-      - KAFKA_API_BASE_URL=http://project-m-kafka-api:8002
-      - STORE_API_BASE_URL=http://project-m-cb-api:8001
+      - KAFKA_API_BASE_URL=http://pyzdo-kafka-api:8002
+      - STORE_API_BASE_URL=http://pyzdo-cb-api:8001
 
-  project-m-ui:
+  pyzdo-ui:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
-      - project-m-ui-api
-    build: ./src/ui/projectm-ui
+      - pyzdo-ui-api
+    build: ./src/ui/pyzdo-ui
     ports:
       - 8080:80
     environment:
@@ -143,5 +143,5 @@ services:
       - VUE_APP_UI_API_BASE_URL=http://localhost:3004/ui-api
 
 networks:
-  mandy:
+  pyzdo:
     driver: bridge

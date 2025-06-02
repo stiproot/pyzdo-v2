@@ -3086,7 +3086,7 @@ export const sample_data = [
                       "WICreationTool-Clone-230821-1",
                     ],
                     title:
-                      "Catering for project specific hardware and software requirements on the live environments.",
+                      "Catering for project specific hardware and XoProj requirements on the live environments.",
                     type: "User Story",
                   },
                   {

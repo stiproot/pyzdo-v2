@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyzdo-insights-worker
+  namespace: pyzdo
+  labels:
+    app: pyzdo-insights-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyzdo-insights-worker
+  template:
+    metadata:
+      labels:
+        app: pyzdo-insights-worker
+    spec:
+      containers:
+        - name: pyzdo-insights-worker
+          image: docker.io/pyzdo/insights-worker:1.0.8
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: ""
+            - name: KAFKA_SECURITY_PROTOCOL
+              value: "SASL_SSL"
+            - name: KAFKA_SASL_MECHANISMS
+              value: "PLAIN"
+            - name: KAFKA_SASL_USERNAME
+              value: ""
+            - name: KAFKA_SASL_PASSWORD
+              value: ""
+            - name: KAFKA_GROUP_ID
+              value: "pyzdo-insights-worker-001"
+            - name: KAFKA_AUTO_OFFSET_RESET
+              value: "latest"
+            - name: DEBUGGING
+              value: "False"
+            - name: WORKER_TOPIC
+              value: "pyzdo_CMD_STRUCTURE"
+            - name: PERSIST_TOPIC
+              value: "pyzdo_CMD_PERSIST"
+            - name: PERSIST_URL
+              value: "http://pyzdo-kafka-api.pyzdo.svc.cluster.local:8004/kafka/topic/publish"
+            - name: STORE_QUERY_URL
+              value: "http://pyzdo-store-api.pyzdo.svc.cluster.local:8003/store/qry"
+            - name: ENVIRONMENT
+              value: "aks"
+            - name: KEY_VAULT_URL
+              value: ""
+            - name: COSMOS_DATABASE_NAME
+              value: ""
+            - name: COSMOS_URL
+              value: ""
+            - name: AZURE_CLIENT_ID
+              value: ""
+            - name: AZURE_CLIENT_SECRET
+              value: ""
+            - name: AZURE_TENANT_ID
+              value: ""

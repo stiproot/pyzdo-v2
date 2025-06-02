@@ -1,4 +1,4 @@
-# projectm-ui
+# pyzdo-ui
 
 ## Project setup
 ```

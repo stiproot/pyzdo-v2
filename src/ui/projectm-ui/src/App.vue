@@ -10,7 +10,7 @@
           aria-label="Menu"
           icon="menu"
         />
-        <q-toolbar-title>project_m(andy)</q-toolbar-title>
+        <q-toolbar-title>pyzdo(andy)</q-toolbar-title>
         <div>v0.0.3-beta</div>
       </q-toolbar>
     </q-header>
@@ -42,14 +42,14 @@
           clickable
           tag="a"
           target="_blank"
-          href="https://dev.azure.com/Derivco/Software/_git/Internal-ProjectMetrics"
+          href="https://dev.azure.com/Xo/XoProj/_git/Internal-pyzdoetrics"
         >
           <q-item-section avatar>
             <q-icon name="code" />
           </q-item-section>
           <q-item-section>
             <q-item-label>Git</q-item-label>
-            <q-item-label caption>software/project-m</q-item-label>
+            <q-item-label caption>XoProj/pyzdo</q-item-label>
           </q-item-section>
         </q-item>
 

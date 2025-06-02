@@ -23,7 +23,7 @@ import ItemSelectorComponent from "./ItemSelectorComponent.vue";
 import FabActionComponent from "./FabActionComponent.vue";
 import BtnComponent from "./BtnComponent.vue";
 export default {
-  name: "ProjectManagerComponent",
+  name: "pyzdoanagerComponent",
   components: { ItemSelectorComponent, FabActionComponent, BtnComponent },
   setup() {
     const router = useRouter();

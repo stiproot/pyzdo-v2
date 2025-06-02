@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyzdo-ui-api
+  namespace: pyzdo
+  labels:
+    app: pyzdo-ui-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyzdo-ui-api
+  template:
+    metadata:
+      labels:
+        app: pyzdo-ui-api
+    spec:
+      containers:
+        - name: pyzdo-ui-api
+          image: docker.io/pyzdo/ui-api:1.0.6
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+            - name: NODE_ENV
+              value: "production"
+            - name: KAFKA_API_BASE_URL
+              value: "http://pyzdo-kafka-api.pyzdo.svc.cluster.local:8004"
+            - name: STORE_API_BASE_URL
+              value: "http://pyzdo-store-api.pyzdo.svc.cluster.local:8003"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pyzdo-ui-api
+  namespace: pyzdo
+spec:
+  selector:
+    app: pyzdo-ui-api
+  type: ClusterIP
+  ports:
+    - name: port-3003
+      protocol: TCP
+      port: 3003
+      targetPort: 3002
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ir-pyzdo-ui-api
+  namespace: pyzdo
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: "Host(`app.pyzdo.io`) && PathPrefix(`/{path:(?i:app/ui-api/v1)}`)"
+    kind: Rule
+    services:
+    - name: pyzdo-ui-api
+      port: 3003
+      namespace: pyzdo
+    middlewares:
+    - name: "internal-pyzdo-ui-api-stripprefix"
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "internal-pyzdo-ui-api-stripprefix"
+  namespace: pyzdo
+spec:
+  stripPrefixRegex:
+    regex:
+      - /(?i:app/ui-api/v1)

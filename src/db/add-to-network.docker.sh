@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker network connect project_m-mandy project-m-db-$1
+docker network connect pyzdo-pyzdo pyzdo-db-$1

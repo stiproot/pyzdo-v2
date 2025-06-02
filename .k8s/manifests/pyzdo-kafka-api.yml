@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyzdo-kafka-api
+  namespace: pyzdo
+  labels:
+    app: pyzdo-kafka-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pyzdo-kafka-api
+  template:
+    metadata:
+      labels:
+        app: pyzdo-kafka-api
+    spec:
+      containers:
+        - name: pyzdo-kafka-api
+          image: docker.io/pyzdo/kafka-api:1.0.8
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8002
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: ""
+            - name: KAFKA_SECURITY_PROTOCOL
+              value: "SASL_SSL"
+            - name: KAFKA_SASL_MECHANISMS
+              value: "PLAIN"
+            - name: KAFKA_SASL_USERNAME
+              value: ""
+            - name: KAFKA_SASL_PASSWORD
+              value: ""
+            - name: CLIENT_ID
+              value: "pyzdo-kafka-api"
+            - name: STORE_QUERY_URL
+              value: ""
+            - name: COSMOS_DATABASE_NAME
+              value: ""
+            - name: ENVIRONMENT
+              value: "aks"
+            - name: DEBUGGING
+              value: "False"
+            - name: AZURE_CLIENT_ID
+              value: ""
+            - name: AZURE_CLIENT_SECRET
+              value: ""
+            - name: AZURE_TENANT_ID
+              value: ""
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pyzdo-kafka-api
+  namespace: pyzdo
+spec:
+  selector:
+    app: pyzdo-kafka-api
+  type: ClusterIP
+  ports:
+    - name: port-8004
+      protocol: TCP
+      port: 8004
+      targetPort: 8002
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ir-pyzdo-kafka-api
+  namespace: pyzdo
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: "Host(`app.pyzdo.io`) && PathPrefix(`/{path:(?i:app/kafka-api/v1)}`)"
+    kind: Rule
+    services:
+    - name: pyzdo-kafka-api
+      port: 8004
+      namespace: pyzdo
+    middlewares:
+    - name: internal-pyzdo-kafka-api-stripprefix
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: internal-pyzdo-kafka-api-stripprefix
+  namespace: pyzdo
+spec:
+  stripPrefixRegex:
+    regex:
+      - /(?i:app/kafka-api/v1)

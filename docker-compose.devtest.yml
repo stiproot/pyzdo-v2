@@ -1,9 +1,9 @@
 version: "2"
 services:
 
-  project-m-kafka-api:
+  pyzdo-kafka-api:
     networks:
-      - project-m
+      - pyzdo
     build: ./src/apis/kafka-api
     ports:
       - 8006:8002
@@ -13,7 +13,7 @@ services:
       - KAFKA_SASL_MECHANISMS=PLAIN
       - KAFKA_SASL_USERNAME=
       - KAFKA_SASL_PASSWORD=
-      - CLIENT_ID=projectm-kafka-api
+      - CLIENT_ID=pyzdo-kafka-api
       - ENVIRONMENT=aks
       - STORE_QUERY_URL=
       - COSMOS_DATABASE_NAME=
@@ -21,9 +21,9 @@ services:
       - AZURE_CLIENT_SECRET=
       - AZURE_TENANT_ID=
 
-  project-m-store-api:
+  pyzdo-store-api:
     networks:
-      - project-m
+      - pyzdo
     build: ./src/apis/store-api
     ports:
       - 8005:8001
@@ -37,31 +37,31 @@ services:
       - AZURE_CLIENT_SECRET=
       - AZURE_TENANT_ID=
 
-  project-m-azdo-proxy-api:
+  pyzdo-azdo-proxy-api:
     networks:
-      - project-m
+      - pyzdo
     build: ./src/apis/azdo-proxy-api
     ports:
       - 5079:5079
 
-  project-m-persist-worker:
+  pyzdo-persist-worker:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
-      - project-m-store-api
+      - pyzdo-store-api
     build: ./src/workers/persist
     environment:
-      - WORKER_TOPIC=PROJECTM_CMD_PERSIST
+      - WORKER_TOPIC=pyzdo_CMD_PERSIST
       - KAFKA_BOOTSTRAP_SERVERS=
       - KAFKA_SECURITY_PROTOCOL=SASL_SSL
       - KAFKA_SASL_MECHANISMS=PLAIN
       - KAFKA_SASL_USERNAME=
       - KAFKA_SASL_PASSWORD=
-      - KAFKA_GROUP_ID=projectm-persist-worker-001
+      - KAFKA_GROUP_ID=pyzdo-persist-worker-001
       - KAFKA_AUTO_OFFSET_RESET=latest
-      - STORE_COMMAND_URL=http://project-m-store-api:8001/store/cmd
-      - STORE_BULK_COMMAND_URL=http://project-m-store-api:8001/store/cmds
-      - STORE_QUERY_URL=http://project-m-store-api:8001/store/qry
+      - STORE_COMMAND_URL=http://pyzdo-store-api:8001/store/cmd
+      - STORE_BULK_COMMAND_URL=http://pyzdo-store-api:8001/store/cmds
+      - STORE_QUERY_URL=http://pyzdo-store-api:8001/store/qry
       - ENVIRONMENT=aks
       - DEBUGGING=False
       - COSMOS_DATABASE_NAME=
@@ -69,26 +69,26 @@ services:
       - AZURE_CLIENT_SECRET=
       - AZURE_TENANT_ID=
 
-  project-m-azdo-worker:
+  pyzdo-azdo-worker:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
-      - project-m-azdo-proxy-api
+      - pyzdo-azdo-proxy-api
     build: ./src/workers/azdo
     environment:
-      - WORKER_TOPIC=PROJECTM_CMD_GATHER
+      - WORKER_TOPIC=pyzdo_CMD_GATHER
       - KAFKA_BOOTSTRAP_SERVERS=
       - KAFKA_SECURITY_PROTOCOL=SASL_SSL
       - KAFKA_SASL_MECHANISMS=PLAIN
       - KAFKA_SASL_USERNAME=
       - KAFKA_SASL_PASSWORD=
-      - KAFKA_GROUP_ID=projectm-azdo-worker-001
+      - KAFKA_GROUP_ID=pyzdo-azdo-worker-001
       - KAFKA_AUTO_OFFSET_RESET=latest
       - DEBUGGING=False
-      - PERSIST_TOPIC=PROJECTM_CMD_PERSIST
-      - PERSIST_URL=http://project-m-kafka-api:8002/kafka/topic/publish
+      - PERSIST_TOPIC=pyzdo_CMD_PERSIST
+      - PERSIST_URL=http://pyzdo-kafka-api:8002/kafka/topic/publish
       - API_KEY=
-      - STORE_QUERY_URL=http://project-m-store-api:8001/store/qry
+      - STORE_QUERY_URL=http://pyzdo-store-api:8001/store/qry
       - ENVIRONMENT=aks
       - KEY_VAULT_URL=
       - COSMOS_DATABASE_NAME=
@@ -97,22 +97,22 @@ services:
       - AZURE_CLIENT_SECRET=
       - AZURE_TENANT_ID=
 
-  project-m-insights-worker:
+  pyzdo-insights-worker:
     networks:
-      - project-m
+      - pyzdo
     build: ./src/workers/insights
     environment:
-      - WORKER_TOPIC=PROJECTM_CMD_STRUCTURE
+      - WORKER_TOPIC=pyzdo_CMD_STRUCTURE
       - KAFKA_BOOTSTRAP_SERVERS=
       - KAFKA_SECURITY_PROTOCOL=SASL_SSL
       - KAFKA_SASL_MECHANISMS=PLAIN
       - KAFKA_SASL_USERNAME=
       - KAFKA_SASL_PASSWORD=
-      - KAFKA_GROUP_ID=projectm-insights-worker-001
+      - KAFKA_GROUP_ID=pyzdo-insights-worker-001
       - KAFKA_AUTO_OFFSET_RESET=latest
-      - PERSIST_TOPIC=PROJECTM_CMD_PERSIST
-      - PERSIST_URL=http://project-m-kafka-api:8002/kafka/topic/publish
-      - STORE_QUERY_URL=http://project-m-store-api:8001/store/qry
+      - PERSIST_TOPIC=pyzdo_CMD_PERSIST
+      - PERSIST_URL=http://pyzdo-kafka-api:8002/kafka/topic/publish
+      - STORE_QUERY_URL=http://pyzdo-store-api:8001/store/qry
       - DEBUGGING=False
       - ENVIRONMENT=aks
       - COSMOS_DATABASE_NAME=
@@ -121,50 +121,50 @@ services:
       - AZURE_CLIENT_SECRET=
       - AZURE_TENANT_ID=
 
-  project-m-azdo-proxy-worker:
+  pyzdo-azdo-proxy-worker:
     networks:
-      - project-m
+      - pyzdo
     build: ./src/workers/azdo_proxy
     environment:
-      - WORKER_TOPIC=PROJECTM_CMD_AZDO_PROXY
+      - WORKER_TOPIC=pyzdo_CMD_AZDO_PROXY
       - KAFKA_BOOTSTRAP_SERVERS=
       - KAFKA_SECURITY_PROTOCOL=SASL_SSL
       - KAFKA_SASL_MECHANISMS=PLAIN
       - KAFKA_SASL_USERNAME=
       - KAFKA_SASL_PASSWORD=
-      - KAFKA_GROUP_ID=projectm-azdo-proxy-worker-001
+      - KAFKA_GROUP_ID=pyzdo-azdo-proxy-worker-001
       - KAFKA_AUTO_OFFSET_RESET=latest
-      - PERSIST_TOPIC=PROJECTM_CMD_PERSIST
-      - PERSIST_URL=http://project-m-kafka-api:8002/kafka/topic/publish
-      - AZDO_PROXY_BASE_URL=http://project-m-azdo-proxy-api:80
+      - PERSIST_TOPIC=pyzdo_CMD_PERSIST
+      - PERSIST_URL=http://pyzdo-kafka-api:8002/kafka/topic/publish
+      - AZDO_PROXY_BASE_URL=http://pyzdo-azdo-proxy-api:80
       - API_KEY=
-      - STORE_QUERY_URL=http://project-m-store-api:8001/store/qry
+      - STORE_QUERY_URL=http://pyzdo-store-api:8001/store/qry
       - ENVIRONMENT=aks
       - DEBUGGING=False
       - AZURE_CLIENT_ID= 
       - AZURE_CLIENT_SECRET=
       - AZURE_TENANT_ID=
 
-  project-m-ui-api:
+  pyzdo-ui-api:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
-      - project-m-store-api
+      - pyzdo-store-api
     build: ./src/apis/ui-api
     ports:
       - 3004:3002
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - KAFKA_API_BASE_URL=http://project-m-kafka-api:8002
-      - STORE_API_BASE_URL=http://project-m-store-api:8001
+      - KAFKA_API_BASE_URL=http://pyzdo-kafka-api:8002
+      - STORE_API_BASE_URL=http://pyzdo-store-api:8001
 
-  project-m-ui:
+  pyzdo-ui:
     networks:
-      - project-m
+      - pyzdo
     depends_on:
-      - project-m-ui-api
-    build: ./src/ui/projectm-ui
+      - pyzdo-ui-api
+    build: ./src/ui/pyzdo-ui
     ports:
       - 8080:8081
     environment:
@@ -173,5 +173,5 @@ services:
       - VUE_APP_UI_API_BASE_URL=http://localhost:3004/ui-api
 
 networks:
-  project-m:
+  pyzdo:
     driver: bridge
